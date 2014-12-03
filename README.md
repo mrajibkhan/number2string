@@ -1,0 +1,18 @@
+Number to String
+================
+
+Using your language of choice, produce a library that has the following capability within it:
+
+**given some integer (N) as an argument, return a string representation of that integer.**
+
+For example, using the capability in a scala REPL (implemented as a function called _int2str_) may look like this:
+```
+scala> int2str(5)
+res0: String = five
+
+scala> int2str(55)
+res1: String = fifty-five
+```
+
+
+As a part of the submission, treat the library as though it were an API (to be further evolved) that will be used within an organization for production use.  Given that, it should include an appropriate level of professional cleanliness that you would stand behind for a published library.
