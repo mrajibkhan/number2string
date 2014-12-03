@@ -15,4 +15,4 @@ res1: String = fifty-five
 ```
 
 
-As a part of the submission, treat the library as though it were an API (to be further evolved) that will be used within an organization for production use.  Given that, it should include an appropriate level of professional cleanliness that you would stand behind for a published library.
+As a part of the submission, treat the library as though it were an API (which may have new capabilities in the future) that will be used within an organization for production use.  Given that, it should include an appropriate level of professional cleanliness that you would stand behind for a published library.
