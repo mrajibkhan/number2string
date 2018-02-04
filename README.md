@@ -40,6 +40,7 @@ convert a number (non decimal) to string:
 ### Algorithm
 1. *Zero*
 If the number is '0' then string representation is 'Zero' and no further processing is required
+1. use absolute values for calculations
 1. *Split in groups of three digit* numbers will be grouped by 3 digits (right to left). For example, 
    * 1st group (of 3 digits) represents values ones, tens and hundreds (1 to 999), 
    * 2nd group (of 3 digits) represents values thousands (1000 to 999,000)
@@ -59,11 +60,13 @@ If a number is in the range 1 to 19 use the unique number representation.
 if the number is split into multiple groups then combine the group's string representation
 with corresponding scale in reverse order i.e. million then thousand and then hundred etc.
 Symbols can be appended after the scale
+1. prepend Negative if input was a negative value
    
 #### Examples
  * input '0' :
    - String representation wil be 'Zero' in step 1
    - output = 'Zero'
+   
  * input '43' :
    - not zero
    - group of 3 digit: 1 group i.e. 43
@@ -71,6 +74,7 @@ Symbols can be appended after the scale
    - tens rule applies, string representation becomes Forty
    - tens and ones rule applies, appends Three
    - output = Forty Three
+   
  * input '23443'  
    - non zero
    - split in 2 groups i.e. '443' and '23'
@@ -79,7 +83,43 @@ Symbols can be appended after the scale
    - output: Twenty Three Thousand, Four Hundred Forty Three
 
 
+## Key Architecture Goals
+### API: 
+features should be exposed by means of API. Initial version can expose REST API but should allow 
+to implement support for using various other protocols e.g. gRPC etc. 
+### Extensibility: 
+architecture should support adding / extend feature easily
+### Environment: 
+system should support configurable items
+### Availability:
+system should be ready to be deployed in cloud environment and highly available
+### Scalability:
+APIs should be stateless and scalable i.e. ready to support load balancing
+### Security:
+should support security implementation
+### logging and tracing
+should have appropriate level of logging and be ready to implement monitoring
+ 
+   
+## Technology (language, build tool and framework)
+### MVC framework  
+Spring-boot framework will be used as it is widely used in the industry and provides opinionated features and
+dependency injection. Also this application can easily be extended to web application. 
 
+Although it may seem like a overkill to use a full fledged framework for solving a small problem,
+using spring framework will help to achieve many of our architectural goals.
+ 
+### Container
+Docker container will be used which will enable us to make the deployment easy in different
+environments and also introduce capability to deploy in containerized environments like
+Kubernetes or ECS etc.
+ 
+### Programming language, build tools and versions 
+```
+java (8 or above)
+gradle (4.x)
+SpringBoot (1.5.10-RELEASE)
+```
 
 
 
