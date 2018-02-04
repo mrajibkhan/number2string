@@ -2,6 +2,7 @@ package com.onprem.rk.number2word.controllers;
 
 import com.onprem.rk.number2word.models.ConversionResponse;
 import com.onprem.rk.number2word.services.NumberConversionService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 
 @Controller
+@Slf4j
 public class NumberConversionController {
 
     @Autowired
@@ -25,7 +27,7 @@ public class NumberConversionController {
     @RequestMapping(value="/numberToString/{number}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<ConversionResponse> convertNumberToString(@PathVariable("number") String numberStr) {
-
+        log.info("input string: {}", numberStr );
         ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(numberStr);
         return new ResponseEntity<>(conversionResponse, HttpStatus.OK);
     }

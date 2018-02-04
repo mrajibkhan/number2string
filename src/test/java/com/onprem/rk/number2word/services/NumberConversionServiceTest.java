@@ -31,10 +31,66 @@ public class NumberConversionServiceTest {
     }
 
     @Test
-    public void response_contains_input_string() {
+    public void response_should_contain_input_string() {
         String input = "123";
         ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
         assertThat("response should have input 123", conversionResponse.getInput(), is("123"));
+    }
+
+    @Test
+    public void response_should_contain_output_for_000() {
+        String input = "000";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Zero for input 000", conversionResponse.getOutput(), is("Zero"));
+    }
+
+    @Test
+    public void response_should_contain_output_for_1() {
+        String input = "001";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output One for input 001", conversionResponse.getOutput(), is("One"));
+    }
+
+    @Test
+    public void response_should_contain_output_for_10() {
+        String input = "10";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Ten for input 10", conversionResponse.getOutput(), is("Ten"));
+    }
+
+    @Test
+    public void response_should_contain_output_for_19() {
+        String input = "19";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Ten for input 19", conversionResponse.getOutput(), is("Nineteen"));
+    }
+
+    @Test
+    public void response_should_contain_output_for_20() {
+        String input = "20";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Ten for input 20", conversionResponse.getOutput(), is("Twenty"));
+    }
+
+    @Test
+    public void response_should_contain_output_for_99() {
+        String input = "99";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Ten for input 99", conversionResponse.getOutput(), is("Ninety-Nine"));
+    }
+
+    @Test
+    public void it_removes_whitespaces_and_commas_from_input() {
+        String input = "0 0 2 , 9";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Ten for input 99", conversionResponse.getOutput(), is("Twenty-Nine"));
+    }
+
+    @Test
+    public void it_handles_negative_numbers() {
+        String input = "-99";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Ten for input 99", conversionResponse.getOutput(), is("Negative Ninety-Nine"));
     }
 
 }

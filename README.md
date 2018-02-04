@@ -169,6 +169,7 @@ the application in docker container as well.
 
 #### build and run with docker-compose
 ```
+docker-compose build
 docker-compose up
 ```
 Note: default host port is 8080. Change this in docker-compose.yml file
@@ -187,6 +188,16 @@ docker build -t number-converter .
 docker run -it -p 9090:8080 number-converter:latest
 ```
 you can change your localhost port (9090) to any other available port if you wish. 
+
+## Application Configuration
+Configuration can be found in [application.properties](src/main/resources/application.properties)
+ * port
+ ```
+ server.port=8080
+ ```
+ for running docker-compose port mapping is located in [docker-compose.yml](docker-compose.yml) 
+ * logging 
+ logs will be generated in logs folder
 
 
 
