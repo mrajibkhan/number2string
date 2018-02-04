@@ -1,5 +1,15 @@
 User Stories
 ============
+
+item |story | status
+-----|------|-------
+OnPrem-001 | Manage repository | done
+OnPrem-002 | Analysis and Architecture | done
+OnPrem-003 | Create bare-bone service displaying user input | done
+OnPrem-004 | Implement Tens and Ones Rule |
+OnPrem-005 | Implement Hundreds Rule |
+OnPrem-006 | Implement Large Scales (Thousand, Million, Billion etc) |
+
 #### OnPrem-001: Manage repository
 In order to maintain the source code for the service being developed, as a team member I want 
 to setup the repository

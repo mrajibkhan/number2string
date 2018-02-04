@@ -121,6 +121,14 @@ gradle (4.x)
 SpringBoot (1.5.10-RELEASE)
 ```
 
+## Development methodology
+ * User stories have been captured in file [UserStories](UserStories.md) and status will be tracked there
+ * Created 'develop' branch in revision control
+ * feature branches will be created per user stories. Once feature is complete then that 
+branch will be merged to develop branch. Ideally, once successfully merged, deployed and tested the
+feature branch can be deleted but for tracking purpose these branches will be deleted after completion
+of the development (once final pull request to master is accepted and merged)    
+
 ## HOW TO
 #### clone the project from bitbucket
 ```
