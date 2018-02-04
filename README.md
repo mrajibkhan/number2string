@@ -121,5 +121,74 @@ gradle (4.x)
 SpringBoot (1.5.10-RELEASE)
 ```
 
+## Development methodology
+ * User stories have been captured in file [UserStories](UserStories.md) and status will be tracked there
+ * Created 'develop' branch in revision control
+ * feature branches will be created per user stories. Once feature is complete then that 
+branch will be merged to develop branch. Ideally, once successfully merged, deployed and tested the
+feature branch can be deleted but for tracking purpose these branches will be deleted after completion
+of the development (once final pull request to master is accepted and merged)    
+
+## HOW TO
+#### clone the project from bitbucket
+```
+git clone https://mrajibkhan@bitbucket.org/onprem/interview-rajib_khan.git
+cd interview-rajib_khan
+git checkout origin/<branch>
+```
+### Run Tests:
+```
+gradle --info clean test
+```
+test generates report in ```build/reports/tests/test```
+
+### Build Application:
+```
+gradle --info clean build
+```
+an executable jar will be generated in ```build/libs/numberConverter-0.0.1-SNAPSHOT.jar```
+
+### Run Application:
+```
+java -jar build/libs/numberConverter-0.0.1-SNAPSHOT.jar
+```
+### Use the API (REST endpoint)
+ * Use browser: hit the URL http://localhost:8080/numberToString/{input number}
+ * use wget
+```
+wget -qO - "http://localhost:8080/numberToString/123"
+```
+ * or curl
+```
+curl -v localhost:8080/numberToString/123
+```
+
+### Run in Docker:
+If you don't want to install jdk and gradle and have docker installed you can build and run 
+the application in docker container as well. 
+
+#### build and run with docker-compose
+```
+docker-compose up
+```
+Note: default host port is 8080. Change this in docker-compose.yml file
+if you want to use a different port mapping
+
+If you rather build and run separately / don't have docker-compose installed 
+then you can build and run using below steps
+
+#### build:
+```
+docker build -t number-converter .
+```
+
+#### Run:
+```
+docker run -it -p 9090:8080 number-converter:latest
+```
+you can change your localhost port (9090) to any other available port if you wish. 
+
+
+
 
 
