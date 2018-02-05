@@ -10,6 +10,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -75,6 +76,12 @@ public class NumberConfigTest {
     public void getNegativeText_should_return_negative() {
         assertThat("should return Negative as the text to represent negative numbers",
                 numberConfig.getNegativeText(), is("Negative"));
+    }
+
+    @Test
+    public void getJoinByText3Digit_should_return_a_text() {
+        assertThat("should return a text as the joining text for ",
+                numberConfig.getJoinByText3Digit(), notNullValue());
     }
 
 }
