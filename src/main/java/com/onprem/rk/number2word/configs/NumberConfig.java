@@ -28,4 +28,10 @@ public class NumberConfig {
     @Value("${words.negative}")
     private String negativeText;
 
+    @Value("${words.hundred}")
+    private String hundred;
+
+    @Value("${words.3digit.join.text}")
+    private String joinByText3Digit;
+
 }
