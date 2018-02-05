@@ -3,12 +3,15 @@ package com.onprem.rk.number2word.services;
 import com.onprem.rk.number2word.configs.NumberConfig;
 import com.onprem.rk.number2word.exceptions.NumberConversionException;
 import com.onprem.rk.number2word.models.ConversionResponse;
+import com.onprem.rk.number2word.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Rajib Khan on 04 Feb 2018
@@ -27,27 +30,35 @@ public class NumberConversionService {
      * @param numberAsStr
      */
     public ConversionResponse convertNumberToWord(String numberAsStr) throws NumberConversionException {
-        // remove white spaces and comma from input
-        numberAsStr = StringUtils.trimAllWhitespace(numberAsStr).replaceAll(",", "");
+
         //TODO input data validation
         ConversionResponse response = new ConversionResponse();
         response.setInput(numberAsStr);
 
-        BigInteger inputNumber = new BigInteger(numberAsStr);
-        BigInteger absNumber = inputNumber.abs();
+        // remove white spaces and comma from input
+        numberAsStr = StringUtils.trimAllWhitespace(numberAsStr).replaceAll(",", "");
+        boolean isNegative = numberAsStr.startsWith("-");
+        if(isNegative) {
+            numberAsStr = numberAsStr.replaceFirst("-", "");
+        }
+
+        List<List> numberGroups = StringUtil.splitNumberStringIntoGroups(numberAsStr,
+                numberConfig.getLargeScaleWords().size(), 3);
+        System.out.println("Groups: " + numberGroups);
+        List<List> wordGroups = getWordsForNumbers(numberGroups);
+        System.out.println("Words: " + wordGroups);
+
+        int firstGroupNumber = Integer.valueOf((String)numberGroups.get(0).get(0));
+        boolean appendAndToJoin = firstGroupNumber > 0 && firstGroupNumber < 100;
+        String combinedOutput = combineGroupWords(appendAndToJoin, wordGroups);
 
         String output = "";
 
-        if(absNumber.intValue() == 0) {
-            output = numberConfig.getBasicNumberWords().get(0);
-        } else {
-            output = convertThreeDigitNumberToWord(absNumber.intValue());
+        if(isNegative) {
+            output = numberConfig.getNegativeText() + " " + combinedOutput;
         }
 
-        if(inputNumber.signum() == -1) {
-            output = numberConfig.getNegativeText() + " " + output;
-        }
-        response.setOutput(output);
+        response.setOutput(combinedOutput);
 
         return response;
     }
@@ -131,6 +142,67 @@ public class NumberConversionService {
         }
 
         return groupText.toString();
+    }
+
+    /**
+     * Iterates through the list of numbers and returns list of words.
+     * @param groups
+     * @return
+     * @throws NumberConversionException
+     */
+    public List<List> getWordsForNumbers(List<List> groups) throws NumberConversionException {
+        List<List> groupAsWords = new ArrayList<>();
+        for(List currentGroup : groups) {
+            if(currentGroup.size() == 1) {
+                groupAsWords.add(Arrays.asList(convertThreeDigitNumberToWord(Integer.valueOf((String)currentGroup.get(0)))));
+            } else if(groups.size() > 1) {
+                groupAsWords.add(getWordsForNumbers(currentGroup));
+            }
+        }
+
+        return groupAsWords;
+    }
+
+    /**
+     * Combines the group words. Uses recursion if the largest scale group contains
+     * sub-groups. For each group words the scale and punctuation is appended.
+     * @param appendAnd
+     * @param groupText
+     * @return
+     */
+
+    public String combineGroupWords(boolean appendAnd, List<List> groupText) {
+        // flatten the largest group
+        List<List> largestScaleGroup = groupText.get(groupText.size() -1 );
+        if(largestScaleGroup != null && largestScaleGroup.size() > 1) {
+            groupText.set(groupText.size() -1, new ArrayList(Arrays.asList(combineGroupWords(appendAnd, largestScaleGroup))));
+        }
+
+        // Recombine the three-digit groups
+        String combined = (String)groupText.get(0).get(0);
+
+        // Process the remaining groups in turn, smallest to largest
+        for (int i = 1; (i < numberConfig.getLargeScaleWords().size() && i < groupText.size()); i++)
+        {
+            // Only add non-zero items
+            if (!((String)groupText.get(i).get(0)).isEmpty())
+            {
+                // Build the string to add as a prefix
+                String prefix = (String)groupText.get(i).get(0) + " " + numberConfig.getLargeScaleWords().get(i);
+
+                if (combined.length() != 0)
+                {
+                    prefix += appendAnd ? " and " : ", ";
+                }
+
+                appendAnd = false;
+
+                // Add the three-digit group to the combined string
+                combined = prefix + combined;
+            }
+        }
+
+        return combined;
     }
 
 

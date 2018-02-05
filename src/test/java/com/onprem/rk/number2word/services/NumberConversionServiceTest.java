@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -147,5 +151,38 @@ public class NumberConversionServiceTest {
         thrown.expect(NumberConversionException.class);
         thrown.expectMessage("Number 1000 is too big for 3 digit number conversion");
         numberConversionService.convertThreeDigitNumberToWord(1000);
+    }
+
+    @Test
+    public void getWordsForNumbers_should_return_words_in_groups() throws Exception {
+        //[[789],[012]]
+        List<List> input = Arrays.asList(Arrays.asList("789"), Arrays.asList("012"));
+        List<List> output = numberConversionService.getWordsForNumbers(input);
+        assertThat("should have 4 groups", output.size(), is(2));
+        assertThat("first group should have 1 list element", output.get(0).size(), is(1));
+        assertThat("first group list should contain 'Seven Hundred and Eighty-Nine'",
+                output.get(0).get(0), is("Seven Hundred and Eighty-Nine"));
+        assertThat("second group should have 1 list element", output.get(1).size(), is(1));
+        assertThat("second group list should contain 'Twelve'", output.get(1).get(0), is("Twelve"));
+    }
+
+    @Test
+    public void combineGroupWords_test_for_thousands() {
+        // [[789],[012]]
+        List<List> input = Arrays.asList(Arrays.asList("Seven Hundred and Eighty-Nine"), Arrays.asList("Twelve"));
+        String output = numberConversionService.combineGroupWords(false, input);
+        assertThat("[[789],[012]] should return Twelve Thousand, Seven Hundred and Eighty-Nine", output,
+                is("Twelve Thousand, Seven Hundred and Eighty-Nine"));
+    }
+
+    @Test
+    public void combineGroupWords_test_for_millions() {
+        // [[456], [789],[012]]
+        List<List> input = Arrays.asList(Arrays.asList("Four Hundred and Fifty-Six"),
+                Arrays.asList("Seven Hundred and Eighty-Nine"), Arrays.asList("Twelve"));
+        String output = numberConversionService.combineGroupWords(false, input);
+        assertThat("[[456],[789],[012]] should return Twelve Million, Seven Hundred and Eighty-Nine Thousand, " +
+                        "Four Hundred and Fifty-Six", output,
+                is("Twelve Million, Seven Hundred and Eighty-Nine Thousand, Four Hundred and Fifty-Six"));
     }
 }
