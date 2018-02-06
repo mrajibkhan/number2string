@@ -38,25 +38,25 @@ Based on the english numbering system as stated above we can constitute below al
 convert a number (non decimal) to string: 
 
 ### Algorithm
-1. *Zero*
+1. **Zero**
 If the number is '0' then string representation is 'Zero' and no further processing is required
 1. use absolute values for calculations
-1. *Split in groups of three digit* numbers will be grouped by 3 digits (right to left). For example, 
+1. **Split in groups of three digit** numbers will be grouped by 3 digits (right to left). For example, 
    * 1st group (of 3 digits) represents values ones, tens and hundreds (1 to 999), 
    * 2nd group (of 3 digits) represents values thousands (1000 to 999,000)
    * 3rd group (of 3 digits) represents values millions (1,000,000 to 999,000,000)
    * continues similarly for billion, trillion and so forth
 1. for each group apply below rules   
-1. *Hundreds*
+1. **Hundreds**
 get the string representation of hundreds digit (3rd from right) / integer division by 100
 from the list of unique numbers string values (one ... nineteen) corresponding to the integer 
 digit and append the word Hundred. Ignore if the digit is '0'  
-1. *Tens* 
+1. **Tens** 
 if the digit  at tens is from 2 to 9 (2nd from right) / integer division by 10 to the remainder 
 of hundreds rule then get the string representation of the number 20 to 90 string list. Ignore if the digit is '0'  
-1. *Tens and Ones* 
+1. **Tens and Ones** 
 If a number is in the range 1 to 19 use the unique number representation. 
-1. *Combine groups*
+1. **Combine groups**
 if the number is split into multiple groups then combine the group's string representation
 with corresponding scale in reverse order i.e. million then thousand and then hundred etc.
 Symbols can be appended after the scale
@@ -86,11 +86,14 @@ Symbols can be appended after the scale
 ## Key Architecture Goals
 ### API: 
 features should be exposed by means of API. Initial version can expose REST API but should allow 
-to implement support for using various other protocols e.g. gRPC etc. 
+to implement support for using various other protocols e.g. gRPC etc. And make service language agnostic
+i.e. clients can be build in any programming language.
 ### Extensibility: 
-architecture should support adding / extend feature easily
+architecture should support adding / extend features easily
 ### Environment: 
 system should support configurable items
+### Deployability:
+system should be individually deployable 
 ### Availability:
 system should be ready to be deployed in cloud environment and highly available
 ### Scalability:
@@ -120,14 +123,32 @@ java (8 or above)
 gradle (4.x)
 SpringBoot (1.5.10-RELEASE)
 ```
-
+## Design Considerations:
+ * Strings are used for input and not converted to integer (or long etc.) to capture large numbers (longer than)
+integer / long types' maximum values. Input string are split into smaller groups (3 digit) and then converted to
+integers.
+ * words corresponding to numbers are stored in properties files instead of hard-coded constants or enum types.
+This feature enables flexibility of the service to cater for different languages that follows same number rules and
+also enables configuring scales. For example, 1,500,000 'One Million, Five Hundred Thousand' can also be represented 
+as 'One Thousand, Five Hundred Thousand'   
+ * default scale has been configured to have max scale Trillion but can be configured to cater for higher scales like
+Septillion, Octillion.. etc. [see properties file](application.properties) 
+ * configuration items also provides opportunity to introduce internationalization in he future.
+ 
+## Assumptions
+ * Only supports integer numbers (negative and positive). +/- sign should only be at the beginning if present
+ * Decimal numbers are not supported
+ * Only digits, comma (',') and white-spaces are accepted
+ 
 ## Development methodology
  * User stories have been captured in file [UserStories](UserStories.md) and status will be tracked there
  * Created 'develop' branch in revision control
  * feature branches will be created per user stories. Once feature is complete then that 
 branch will be merged to develop branch. Ideally, once successfully merged, deployed and tested the
 feature branch can be deleted but for tracking purpose these branches will be deleted after completion
-of the development (once final pull request to master is accepted and merged)    
+of the development (once final pull request to master is accepted and merged) 
+ * release-v0.n version will be created for production release. Once pull request have been reviewed 
+changed will merged to master     
 
 ## HOW TO
 #### clone the project from bitbucket
