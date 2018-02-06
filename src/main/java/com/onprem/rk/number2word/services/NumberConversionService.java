@@ -31,34 +31,44 @@ public class NumberConversionService {
      */
     public ConversionResponse convertNumberToWord(String numberAsStr) throws NumberConversionException {
 
-        //TODO input data validation
         ConversionResponse response = new ConversionResponse();
         response.setInput(numberAsStr);
+        numberAsStr = cleanupInput(numberAsStr);
 
-        // remove white spaces and comma from input
-        numberAsStr = StringUtils.trimAllWhitespace(numberAsStr).replaceAll(",", "");
         boolean isNegative = numberAsStr.startsWith("-");
         if(isNegative) {
+            // remove leading '-'
             numberAsStr = numberAsStr.replaceFirst("-", "");
+        }
+
+        // validate input (i.e. digits only)
+        if(!StringUtil.isStringValidNumber(numberAsStr)) {
+            String error = String.format("Invalid input: %s", response.getInput());
+            log.error(error);
+            throw new NumberConversionException(error);
+        }
+
+        // return result if 'Zero'
+        String output;
+        if(StringUtil.isZero(numberAsStr)) {
+            response.setOutput(numberConfig.getBasicNumberWords().get(0));
+            return response;
         }
 
         List<List> numberGroups = StringUtil.splitNumberStringIntoGroups(numberAsStr,
                 numberConfig.getLargeScaleWords().size(), 3);
-        System.out.println("Groups: " + numberGroups);
+        log.debug("3 digit groups for the input: " + numberGroups);
         List<List> wordGroups = getWordsForNumbers(numberGroups);
-        System.out.println("Words: " + wordGroups);
+        log.debug("word groups for the input: " + wordGroups);
 
         int firstGroupNumber = Integer.valueOf((String)numberGroups.get(0).get(0));
         boolean appendAndToJoin = firstGroupNumber > 0 && firstGroupNumber < 100;
-        String combinedOutput = combineGroupWords(appendAndToJoin, wordGroups);
-
-        String output = "";
+        output = combineGroupWords(appendAndToJoin, wordGroups);
 
         if(isNegative) {
-            output = numberConfig.getNegativeText() + " " + combinedOutput;
+            output = numberConfig.getNegativeText() + " " + output;
         }
-
-        response.setOutput(combinedOutput);
+        response.setOutput(output);
 
         return response;
     }
@@ -203,6 +213,21 @@ public class NumberConversionService {
         }
 
         return combined;
+    }
+
+    /**
+     * remove chars like white-space, comma,
+     * @return
+     */
+    private String cleanupInput(String input) {
+        // remove white spaces and comma from input
+        input = StringUtils.trimAllWhitespace(input).replaceAll(",", "");
+        // remove positive sign at the beginning
+        if(input.startsWith("+")) {
+            input = input.replaceFirst("\\+", "");
+        }
+
+        return input;
     }
 
 

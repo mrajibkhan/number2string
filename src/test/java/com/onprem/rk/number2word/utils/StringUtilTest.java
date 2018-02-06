@@ -5,6 +5,7 @@ import java.util.List;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 public class StringUtilTest {
 
@@ -30,8 +31,37 @@ public class StringUtilTest {
         System.out.println(groups);
         assertThat("should have 4 groups", groups.size(), is(4));
         assertThat("should have 2 sub-groups in 4th group", groups.get(3).size(), is(2));
-        assertThat("first sub-group should should contain", ((List)groups.get(3).get(0)).get(0), is("456"));
-        assertThat("first sub-group should should contain", ((List)groups.get(3).get(0)).get(0), is("123"));
+        assertThat("first sub-group should contain 456", ((List)groups.get(3).get(0)).get(0), is("456"));
+        assertThat("second sub-group should contain 123", ((List)groups.get(3).get(1)).get(0), is("123"));
     }
 
+    @Test
+    public void isStringValidNumber_should_return_true_for_12345() {
+        assertThat("should return true for 12345", StringUtil.isStringValidNumber("12345"), is(true));
+    }
+
+    @Test
+    public void isStringValidNumber_should_return_false_for_12abc45() {
+        assertThat("should return false for 12abc45", StringUtil.isStringValidNumber("12abc45"), is(false));
+    }
+
+    @Test
+    public void isZero_should_return_false_for_12abc45() {
+        assertThat("should return false for 12abc45", StringUtil.isZero("12abc45"), is(false));
+    }
+
+    @Test
+    public void isZero_should_return_false_for_000555000() {
+        assertThat("should return false for 12abc45", StringUtil.isZero("000555000"), is(false));
+    }
+
+    @Test
+    public void isZero_should_return_true_for_0() {
+        assertThat("should return true for 0", StringUtil.isZero("0"), is(true));
+    }
+
+    @Test
+    public void isZero_should_return_true_for_000() {
+        assertThat("should return true for 000", StringUtil.isZero("000"), is(true));
+    }
 }

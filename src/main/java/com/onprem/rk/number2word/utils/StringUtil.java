@@ -3,12 +3,19 @@ package com.onprem.rk.number2word.utils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Created by Rajib Khan on 05 Feb 2018
  * StringUtil contains utility methods used for split user inputs
  */
 public class StringUtil {
+
+    static final String NUMBER_REGEX = "\\d+";
+    static final String ZERO_REGEX = "0+";
+
+    static Pattern numberPattern = Pattern.compile(NUMBER_REGEX);
+    static Pattern zeroOnlyPattern = Pattern.compile(ZERO_REGEX);
 
     /**
      * Splits the input string (number) into groups from right to left. Each group can contain certain number of
@@ -44,5 +51,27 @@ public class StringUtil {
         }
 
         return digitGroups;
+    }
+
+    /**
+     * Checks if the string can be converted into a integer number i.e.
+     * contains digits only. Doesn't handle signs ('-' or '+').
+     * Remove sign before using this method.
+     * @param input
+     * @return
+     */
+    public static boolean isStringValidNumber(String input) {
+        return numberPattern.matcher(input).matches();
+    }
+
+    /**
+     * Checks if the string can be converted into zero ('0') i.e.
+     * contains digits only. Doesn't handle signs ('-' or '+').
+     * Remove sign before using this method.
+     * @param input
+     * @return
+     */
+    public static boolean isZero(String input) {
+        return zeroOnlyPattern.matcher(input).matches();
     }
 }

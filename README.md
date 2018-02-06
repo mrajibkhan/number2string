@@ -152,6 +152,10 @@ an executable jar will be generated in ```build/libs/numberConverter-0.0.1-SNAPS
 ```
 java -jar build/libs/numberConverter-0.0.1-SNAPSHOT.jar
 ```
+or with gradle
+```
+gradle bootRun
+```
 ### Use the API (REST endpoint)
  * Use browser: hit the URL http://localhost:8080/numberToString/{input number}
  * use wget
@@ -195,11 +199,36 @@ Configuration can be found in [application.properties](src/main/resources/applic
  ```
  server.port=8080
  ```
- for running docker-compose port mapping is located in [docker-compose.yml](docker-compose.yml) 
+for running docker-compose port mapping is located in [docker-compose.yml](docker-compose.yml) 
  * logging 
  logs will be generated in logs folder
+ * Scale config:
+ ```
+ words.large.scale=,Thousand,Million,Billion,Trillion
+ ``` 
+Maximum scale can be configured here. If you put the maximum as Million then 1 Billion will be
+converted as 1000 Million. You can use other available scales in order. Example:
+```
+ words.large.scale=,Thousand,Million,Billion,Trillion,Quadrillion,Quadrillion
+```  
 
+## Usage Examples
+```
+curl -v localhost:<port>/numberToString/{input string}
 
+example:
+curl -v localhost:8080/numberToString/3332
+```
+Max. Scale | Input | Output
+-----------|---------|-------
+Thousand (or above)|0|{"input":"0","output":"Zero"}
+Thousand (or above)|+000555000|{"input":"+000555000","output":"Five Hundred and Fifty-Five Thousand"}
+Thousand (or above)|+000555000|{"input":"-000555000","output":"Negative Five Hundred and Fifty-Five Thousand"}
+Thousand (or above)|3332|{"input":"3332","output":"Three Thousand, Three Hundred and Thirty-Two"}
+Thousand|3332012|{"input":"3332012","output":"Three Thousand and Three Hundred and Thirty-Two Thousand and Twelve"}
+Million (or above)|3,332,012|{"input":"3,332,012","output":"Three Million, Three Hundred and Thirty-Two Thousand and Twelve"}
+Thousand (or above)|ABCD|Invalid input: ABCD
+Thousand (or above)|-000+500|Invalid input: -000+500
 
 
 

@@ -35,16 +35,31 @@ public class NumberConversionServiceTest {
 
     @Test
     public void convertNumberToWord_removes_whitespaces_and_commas_from_input() throws Exception {
-        String input = "0 0 2 , 9";
+        String input = "+0 0 2 , 9";
         ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
-        assertThat("response should have output Ten for input 99", conversionResponse.getOutput(), is("Twenty-Nine"));
+        assertThat("response should have output Twenty-Nine for input '+0 0 2 , 9'", conversionResponse.getOutput(), is("Twenty-Nine"));
     }
 
     @Test
     public void convertNumberToWord_handles_negative_numbers() throws Exception {
         String input = "-99";
         ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
-        assertThat("response should have output Ten for input 99", conversionResponse.getOutput(), is("Negative Ninety-Nine"));
+        assertThat("response should have output Negative Ninety-Nine for input -99", conversionResponse.getOutput(), is("Negative Ninety-Nine"));
+    }
+
+    @Test
+    public void convertNumberToWord_handles_negative_numbers_padded_zero() throws Exception {
+        String input = "-000555000";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Negative Five Hundred and Fifty-Five Thousand for input -000555000", conversionResponse.getOutput(),
+                is("Negative Five Hundred and Fifty-Five Thousand"));
+    }
+
+    @Test
+    public void convertNumberToWord_handles_number_with_positive_sign() throws Exception {
+        String input = "+99";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Ninety-Nine for input +99", conversionResponse.getOutput(), is("Ninety-Nine"));
     }
 
     @Test
@@ -80,13 +95,6 @@ public class NumberConversionServiceTest {
         String input = "001";
         ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
         assertThat("response should have output One for input 001", conversionResponse.getOutput(), is("One"));
-    }
-
-    @Test
-    public void convertNumberToWord_should_throw_for_large_number() throws Exception {
-        thrown.expect(NumberConversionException.class);
-        thrown.expectMessage("Number 1000 is too big for 3 digit number conversion");
-        numberConversionService.convertNumberToWord("1000");
     }
 
     @Test
@@ -137,6 +145,20 @@ public class NumberConversionServiceTest {
         thrown.expect(NumberConversionException.class);
         thrown.expectMessage("Number 1000 is too big for hundred conversion");
         numberConversionService.getWordForHundreds(1000);
+    }
+
+    @Test
+    public void convertThreeDigitNumberToWord_should_throw_for_invalid_input() throws Exception {
+        thrown.expect(NumberConversionException.class);
+        thrown.expectMessage("Invalid input: 10AB0");
+        numberConversionService.convertNumberToWord("10AB0");
+    }
+
+    @Test
+    public void convertThreeDigitNumberToWord_should_throw_for_positive_sign_in_middle_of_input() throws Exception {
+        thrown.expect(NumberConversionException.class);
+        thrown.expectMessage("Invalid input: 10+20");
+        numberConversionService.convertNumberToWord("10+20");
     }
 
     @Test
