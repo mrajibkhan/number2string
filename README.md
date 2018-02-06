@@ -63,11 +63,11 @@ Symbols can be appended after the scale
 1. prepend Negative if input was a negative value
    
 #### Examples
- * input '0' :
+ * __input '0' :__
    - String representation wil be 'Zero' in step 1
    - output = 'Zero'
    
- * input '43' :
+ * __input '43' :__
    - not zero
    - group of 3 digit: 1 group i.e. 43
    - hundreds rule will be ignored
@@ -75,7 +75,7 @@ Symbols can be appended after the scale
    - tens and ones rule applies, appends Three
    - output = Forty Three
    
- * input '23443'  
+ * __input '23443'__  
    - non zero
    - split in 2 groups i.e. '443' and '23'
    - iterate each groups (as above example), string values 'Four Hundred Forty Three' and 'Twenty Three'
@@ -89,7 +89,7 @@ features should be exposed by means of API. Initial version can expose REST API 
 to implement support for using various other protocols e.g. gRPC etc. And make service language agnostic
 i.e. clients can be build in any programming language.
 ### Extensibility: 
-architecture should support adding / extend features easily
+architecture should support adding / extending features easily
 ### Environment: 
 system should support configurable items
 ### Deployability:
@@ -109,7 +109,7 @@ should have appropriate level of logging and be ready to implement monitoring
 Spring-boot framework will be used as it is widely used in the industry and provides opinionated features and
 dependency injection. Also this application can easily be extended to web application. 
 
-Although it may seem like a overkill to use a full fledged framework for solving a small problem,
+Although it may seem like a overkill to use a full-fledged framework for solving a small problem,
 using spring framework will help to achieve many of our architectural goals.
  
 ### Container
@@ -244,7 +244,7 @@ Max. Scale | Input | Output
 -----------|---------|-------
 Thousand (or above)|0|{"input":"0","output":"Zero"}
 Thousand (or above)|+000555000|{"input":"+000555000","output":"Five Hundred and Fifty-Five Thousand"}
-Thousand (or above)|+000555000|{"input":"-000555000","output":"Negative Five Hundred and Fifty-Five Thousand"}
+Thousand (or above)|-000555000|{"input":"-000555000","output":"Negative Five Hundred and Fifty-Five Thousand"}
 Thousand (or above)|3332|{"input":"3332","output":"Three Thousand, Three Hundred and Thirty-Two"}
 Thousand|3332012|{"input":"3332012","output":"Three Thousand and Three Hundred and Thirty-Two Thousand and Twelve"}
 Million (or above)|3,332,012|{"input":"3,332,012","output":"Three Million, Three Hundred and Thirty-Two Thousand and Twelve"}
