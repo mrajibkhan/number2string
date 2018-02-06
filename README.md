@@ -251,5 +251,11 @@ Million (or above)|3,332,012|{"input":"3,332,012","output":"Three Million, Three
 Thousand (or above)|ABCD|Invalid input: ABCD
 Thousand (or above)|-000+500|Invalid input: -000+500
 
+## Development and test environment
+```
+OS X EI Capitan
+Version 10.11.6
+```
+
 
 
