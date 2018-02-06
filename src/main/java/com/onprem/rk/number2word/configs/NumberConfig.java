@@ -22,6 +22,9 @@ public class NumberConfig {
     @Value("#{'${words.tens.numbers}'.split(',')}")
     private List<String> tensNumberWords;
 
+    @Value("#{'${words.large.scale}'.split(',')}")
+    private List<String> largeScaleWords;
+
     @Value("${words.tens.join.char}")
     private String joinCharacterForTens;
 

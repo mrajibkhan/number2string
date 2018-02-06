@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
@@ -31,16 +35,31 @@ public class NumberConversionServiceTest {
 
     @Test
     public void convertNumberToWord_removes_whitespaces_and_commas_from_input() throws Exception {
-        String input = "0 0 2 , 9";
+        String input = "+0 0 2 , 9";
         ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
-        assertThat("response should have output Ten for input 99", conversionResponse.getOutput(), is("Twenty-Nine"));
+        assertThat("response should have output Twenty-Nine for input '+0 0 2 , 9'", conversionResponse.getOutput(), is("Twenty-Nine"));
     }
 
     @Test
     public void convertNumberToWord_handles_negative_numbers() throws Exception {
         String input = "-99";
         ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
-        assertThat("response should have output Ten for input 99", conversionResponse.getOutput(), is("Negative Ninety-Nine"));
+        assertThat("response should have output Negative Ninety-Nine for input -99", conversionResponse.getOutput(), is("Negative Ninety-Nine"));
+    }
+
+    @Test
+    public void convertNumberToWord_handles_negative_numbers_padded_zero() throws Exception {
+        String input = "-000555000";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Negative Five Hundred and Fifty-Five Thousand for input -000555000", conversionResponse.getOutput(),
+                is("Negative Five Hundred and Fifty-Five Thousand"));
+    }
+
+    @Test
+    public void convertNumberToWord_handles_number_with_positive_sign() throws Exception {
+        String input = "+99";
+        ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
+        assertThat("response should have output Ninety-Nine for input +99", conversionResponse.getOutput(), is("Ninety-Nine"));
     }
 
     @Test
@@ -76,13 +95,6 @@ public class NumberConversionServiceTest {
         String input = "001";
         ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(input);
         assertThat("response should have output One for input 001", conversionResponse.getOutput(), is("One"));
-    }
-
-    @Test
-    public void convertNumberToWord_should_throw_for_large_number() throws Exception {
-        thrown.expect(NumberConversionException.class);
-        thrown.expectMessage("Number 1000 is too big for 3 digit number conversion");
-        numberConversionService.convertNumberToWord("1000");
     }
 
     @Test
@@ -136,6 +148,20 @@ public class NumberConversionServiceTest {
     }
 
     @Test
+    public void convertThreeDigitNumberToWord_should_throw_for_invalid_input() throws Exception {
+        thrown.expect(NumberConversionException.class);
+        thrown.expectMessage("Invalid input: 10AB0");
+        numberConversionService.convertNumberToWord("10AB0");
+    }
+
+    @Test
+    public void convertThreeDigitNumberToWord_should_throw_for_positive_sign_in_middle_of_input() throws Exception {
+        thrown.expect(NumberConversionException.class);
+        thrown.expectMessage("Invalid input: 10+20");
+        numberConversionService.convertNumberToWord("10+20");
+    }
+
+    @Test
     public void convertThreeDigitNumberToWord_should_convert_999() throws Exception {
         String conversionResponse = numberConversionService.convertThreeDigitNumberToWord(999);
         assertThat("response should have output Nine Hundred and Ninety-Nine for input 999",
@@ -147,5 +173,38 @@ public class NumberConversionServiceTest {
         thrown.expect(NumberConversionException.class);
         thrown.expectMessage("Number 1000 is too big for 3 digit number conversion");
         numberConversionService.convertThreeDigitNumberToWord(1000);
+    }
+
+    @Test
+    public void getWordsForNumbers_should_return_words_in_groups() throws Exception {
+        //[[789],[012]]
+        List<List> input = Arrays.asList(Arrays.asList("789"), Arrays.asList("012"));
+        List<List> output = numberConversionService.getWordsForNumbers(input);
+        assertThat("should have 4 groups", output.size(), is(2));
+        assertThat("first group should have 1 list element", output.get(0).size(), is(1));
+        assertThat("first group list should contain 'Seven Hundred and Eighty-Nine'",
+                output.get(0).get(0), is("Seven Hundred and Eighty-Nine"));
+        assertThat("second group should have 1 list element", output.get(1).size(), is(1));
+        assertThat("second group list should contain 'Twelve'", output.get(1).get(0), is("Twelve"));
+    }
+
+    @Test
+    public void combineGroupWords_test_for_thousands() {
+        // [[789],[012]]
+        List<List> input = Arrays.asList(Arrays.asList("Seven Hundred and Eighty-Nine"), Arrays.asList("Twelve"));
+        String output = numberConversionService.combineGroupWords(false, input);
+        assertThat("[[789],[012]] should return Twelve Thousand, Seven Hundred and Eighty-Nine", output,
+                is("Twelve Thousand, Seven Hundred and Eighty-Nine"));
+    }
+
+    @Test
+    public void combineGroupWords_test_for_millions() {
+        // [[456], [789],[012]]
+        List<List> input = Arrays.asList(Arrays.asList("Four Hundred and Fifty-Six"),
+                Arrays.asList("Seven Hundred and Eighty-Nine"), Arrays.asList("Twelve"));
+        String output = numberConversionService.combineGroupWords(false, input);
+        assertThat("[[456],[789],[012]] should return Twelve Million, Seven Hundred and Eighty-Nine Thousand, " +
+                        "Four Hundred and Fifty-Six", output,
+                is("Twelve Million, Seven Hundred and Eighty-Nine Thousand, Four Hundred and Fifty-Six"));
     }
 }

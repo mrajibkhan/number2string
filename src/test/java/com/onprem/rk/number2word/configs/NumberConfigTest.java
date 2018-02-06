@@ -68,6 +68,18 @@ public class NumberConfigTest {
     }
 
     @Test
+    public void getLargeScaleWords_should_return_first_element_as_blank() {
+        List<String> largeScaleWords = numberConfig.getLargeScaleWords();
+        assertThat("should have blank first element", largeScaleWords.get(0), is(""));
+    }
+
+    @Test
+    public void getargeScaleWords_should_return_second_element_as_twenty() {
+        List<String> largeScaleWords = numberConfig.getLargeScaleWords();
+        assertThat("should have second element as thousand", largeScaleWords.get(1), is("Thousand"));
+    }
+
+    @Test
     public void getJoinCharacterForTens_should_return_hyphen() {
         assertThat("should return hyphen(-) as join char for tens", numberConfig.getJoinCharacterForTens(), is("-"));
     }

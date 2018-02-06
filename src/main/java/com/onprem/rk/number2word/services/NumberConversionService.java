@@ -3,12 +3,15 @@ package com.onprem.rk.number2word.services;
 import com.onprem.rk.number2word.configs.NumberConfig;
 import com.onprem.rk.number2word.exceptions.NumberConversionException;
 import com.onprem.rk.number2word.models.ConversionResponse;
+import com.onprem.rk.number2word.utils.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Rajib Khan on 04 Feb 2018
@@ -27,24 +30,42 @@ public class NumberConversionService {
      * @param numberAsStr
      */
     public ConversionResponse convertNumberToWord(String numberAsStr) throws NumberConversionException {
-        // remove white spaces and comma from input
-        numberAsStr = StringUtils.trimAllWhitespace(numberAsStr).replaceAll(",", "");
-        //TODO input data validation
+
         ConversionResponse response = new ConversionResponse();
         response.setInput(numberAsStr);
+        numberAsStr = cleanupInput(numberAsStr);
 
-        BigInteger inputNumber = new BigInteger(numberAsStr);
-        BigInteger absNumber = inputNumber.abs();
-
-        String output = "";
-
-        if(absNumber.intValue() == 0) {
-            output = numberConfig.getBasicNumberWords().get(0);
-        } else {
-            output = convertThreeDigitNumberToWord(absNumber.intValue());
+        boolean isNegative = numberAsStr.startsWith("-");
+        if(isNegative) {
+            // remove leading '-'
+            numberAsStr = numberAsStr.replaceFirst("-", "");
         }
 
-        if(inputNumber.signum() == -1) {
+        // validate input (i.e. digits only)
+        if(!StringUtil.isStringValidNumber(numberAsStr)) {
+            String error = String.format("Invalid input: %s", response.getInput());
+            log.error(error);
+            throw new NumberConversionException(error);
+        }
+
+        // return result if 'Zero'
+        String output;
+        if(StringUtil.isZero(numberAsStr)) {
+            response.setOutput(numberConfig.getBasicNumberWords().get(0));
+            return response;
+        }
+
+        List<List> numberGroups = StringUtil.splitNumberStringIntoGroups(numberAsStr,
+                numberConfig.getLargeScaleWords().size(), 3);
+        log.debug("3 digit groups for the input: " + numberGroups);
+        List<List> wordGroups = getWordsForNumbers(numberGroups);
+        log.debug("word groups for the input: " + wordGroups);
+
+        int firstGroupNumber = Integer.valueOf((String)numberGroups.get(0).get(0));
+        boolean appendAndToJoin = firstGroupNumber > 0 && firstGroupNumber < 100;
+        output = combineGroupWords(appendAndToJoin, wordGroups);
+
+        if(isNegative) {
             output = numberConfig.getNegativeText() + " " + output;
         }
         response.setOutput(output);
@@ -131,6 +152,82 @@ public class NumberConversionService {
         }
 
         return groupText.toString();
+    }
+
+    /**
+     * Iterates through the list of numbers and returns list of words.
+     * @param groups
+     * @return
+     * @throws NumberConversionException
+     */
+    public List<List> getWordsForNumbers(List<List> groups) throws NumberConversionException {
+        List<List> groupAsWords = new ArrayList<>();
+        for(List currentGroup : groups) {
+            if(currentGroup.size() == 1) {
+                groupAsWords.add(Arrays.asList(convertThreeDigitNumberToWord(Integer.valueOf((String)currentGroup.get(0)))));
+            } else if(groups.size() > 1) {
+                groupAsWords.add(getWordsForNumbers(currentGroup));
+            }
+        }
+
+        return groupAsWords;
+    }
+
+    /**
+     * Combines the group words. Uses recursion if the largest scale group contains
+     * sub-groups. For each group words the scale and punctuation is appended.
+     * @param appendAnd
+     * @param groupText
+     * @return
+     */
+
+    public String combineGroupWords(boolean appendAnd, List<List> groupText) {
+        // flatten the largest group
+        List<List> largestScaleGroup = groupText.get(groupText.size() -1 );
+        if(largestScaleGroup != null && largestScaleGroup.size() > 1) {
+            groupText.set(groupText.size() -1, new ArrayList(Arrays.asList(combineGroupWords(appendAnd, largestScaleGroup))));
+        }
+
+        // Recombine the three-digit groups
+        String combined = (String)groupText.get(0).get(0);
+
+        // Process the remaining groups in turn, smallest to largest
+        for (int i = 1; (i < numberConfig.getLargeScaleWords().size() && i < groupText.size()); i++)
+        {
+            // Only add non-zero items
+            if (!((String)groupText.get(i).get(0)).isEmpty())
+            {
+                // Build the string to add as a prefix
+                String prefix = (String)groupText.get(i).get(0) + " " + numberConfig.getLargeScaleWords().get(i);
+
+                if (combined.length() != 0)
+                {
+                    prefix += appendAnd ? " and " : ", ";
+                }
+
+                appendAnd = false;
+
+                // Add the three-digit group to the combined string
+                combined = prefix + combined;
+            }
+        }
+
+        return combined;
+    }
+
+    /**
+     * remove chars like white-space, comma,
+     * @return
+     */
+    private String cleanupInput(String input) {
+        // remove white spaces and comma from input
+        input = StringUtils.trimAllWhitespace(input).replaceAll(",", "");
+        // remove positive sign at the beginning
+        if(input.startsWith("+")) {
+            input = input.replaceFirst("\\+", "");
+        }
+
+        return input;
     }
 
 

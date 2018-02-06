@@ -25,7 +25,7 @@ public class NumberConversionController {
     @RequestMapping(value="/numberToString/{number}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<ConversionResponse> convertNumberToString(@PathVariable("number") String numberStr) {
-        log.info("input string: {}", numberStr );
+        log.info("Request- input string: {}", numberStr );
         ResponseEntity response;
         try {
             ConversionResponse conversionResponse = numberConversionService.convertNumberToWord(numberStr);
@@ -34,10 +34,9 @@ public class NumberConversionController {
             log.error(ex.getMessage());
             response = ResponseEntity.badRequest().body(ex.getMessage());
         }
+        log.info("Response- output " + response);
         return response;
     }
-
-
 }
 
 
